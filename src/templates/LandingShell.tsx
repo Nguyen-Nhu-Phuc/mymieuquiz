@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOutlined } from "@ant-design/icons";
+import { BookOutlined, LoginOutlined, RocketOutlined } from "@ant-design/icons";
 import { Button } from "antd";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -37,8 +37,8 @@ export function LandingShell({ children }: { children: ReactNode }) {
             <ThemeToggle lightOnDarkHeader={isDark} />
             {loggedIn ? (
               <Link href="/library">
-                <Button type="primary" className="header-cta">
-                  Vào thư viện
+                <Button type="primary" icon={<BookOutlined />} className="header-cta">
+                  <span className="header-cta-label">Vào thư viện</span>
                 </Button>
               </Link>
             ) : (
@@ -46,9 +46,12 @@ export function LandingShell({ children }: { children: ReactNode }) {
                 <Link href="/login" className="landing-link-quiet">
                   Đăng nhập
                 </Link>
+                <Link href="/login" className="landing-login-icon" aria-label="Đăng nhập">
+                  <Button type="text" icon={<LoginOutlined />} style={{ color: "inherit" }} />
+                </Link>
                 <Link href="/register">
-                  <Button type="primary" className="header-cta">
-                    Bắt đầu
+                  <Button type="primary" icon={<RocketOutlined />} className="header-cta">
+                    <span className="header-cta-label">Bắt đầu</span>
                   </Button>
                 </Link>
               </>

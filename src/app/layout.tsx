@@ -1,5 +1,5 @@
 import { AntdRegistry } from "@ant-design/nextjs-registry";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Be_Vietnam_Pro, Literata } from "next/font/google";
 import { AuthProvider } from "@/hooks/useAuth";
 import { BRAND_TAGLINE, BRAND_TITLE } from "@/lib/brand";
@@ -24,6 +24,12 @@ const literata = Literata({
 export const metadata: Metadata = {
   title: BRAND_TITLE,
   description: `Tải tài liệu PDF/DOCX, tạo ngân hàng câu hỏi bằng Gemini. ${BRAND_TAGLINE}.`,
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

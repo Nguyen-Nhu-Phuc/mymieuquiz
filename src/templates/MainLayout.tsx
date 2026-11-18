@@ -46,6 +46,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
       label: "Thư viện",
       match: (p: string) =>
         p === "/library" || p.startsWith("/quizzes/") || p.startsWith("/upload"),
+      icon: <BookOutlined />,
     },
     {
       href: "/history",
@@ -56,7 +57,9 @@ export function MainLayout({ children }: { children: ReactNode }) {
   ];
 
   return (
-    <Layout className={`app-shell${inSession ? " app-shell-focus" : ""}`}>
+    <Layout
+      className={`app-shell${inSession ? " app-shell-focus" : ""}${!inSession ? " has-mobile-nav" : ""}`}
+    >
       <Header className="app-header">
         <div className="app-header-inner">
           <Link href="/library" className="brand">
@@ -79,7 +82,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
                     className={`nav-pill${active ? " is-active" : ""}`}
                   >
                     {item.icon}
-                    {item.label}
+                    <span className="nav-pill-label">{item.label}</span>
                   </Link>
                 );
               })}
@@ -90,9 +93,13 @@ export function MainLayout({ children }: { children: ReactNode }) {
 
           <div className="header-user">
             {!inSession ? (
-              <Link href="/upload">
-                <Button type="primary" icon={<PlusOutlined />} className="header-cta">
-                  Tạo quiz
+              <Link href="/upload" className="header-cta-link">
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  className="header-cta"
+                >
+                  <span className="header-cta-label">Tạo quiz</span>
                 </Button>
               </Link>
             ) : null}
@@ -123,6 +130,31 @@ export function MainLayout({ children }: { children: ReactNode }) {
         <Footer className="app-footer">
           {BRAND_NAME} — {BRAND_TAGLINE}
         </Footer>
+      ) : null}
+
+      {!inSession ? (
+        <nav className="mobile-tabbar" aria-label="Điều hướng nhanh">
+          {nav.map((item) => {
+            const active = item.match(pathname);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`mobile-tab${active ? " is-active" : ""}`}
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+          <Link
+            href="/upload"
+            className={`mobile-tab${pathname.startsWith("/upload") ? " is-active" : ""}`}
+          >
+            <PlusOutlined />
+            <span>Tạo</span>
+          </Link>
+        </nav>
       ) : null}
     </Layout>
   );

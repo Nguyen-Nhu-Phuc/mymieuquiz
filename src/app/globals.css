@@ -1035,20 +1035,9 @@ html[data-theme="light"] .display-glow {
   width: min(960px, calc(100% - 32px)) !important;
 }
 
-@media (max-width: 720px) {
-  .header-nav-pills {
-    display: none;
-  }
-
-  .brand-text {
-    max-width: 110px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .header-user-name {
-    display: none;
-  }
+/* mobile tabbar — ẩn trên desktop */
+.mobile-tabbar {
+  display: none;
 }
 
 .action-panel-primary {
@@ -1471,44 +1460,6 @@ html[data-theme="dark"] .question-stem {
   box-shadow: var(--qp-shadow-sm);
 }
 
-@media (max-width: 768px) {
-  .app-header-inner {
-    flex-wrap: wrap;
-    height: auto;
-    padding: 10px 0;
-    gap: 6px;
-  }
-
-  .header-nav.ant-menu {
-    order: 3;
-    width: 100%;
-  }
-
-  .header-user {
-    margin-left: auto;
-  }
-
-  .header-user-name {
-    display: none;
-  }
-
-  .app-content {
-    width: calc(100% - 20px);
-    margin: 18px auto 40px;
-  }
-
-  .meta-tile .value {
-    font-size: 18px;
-  }
-
-  .surface-card {
-    padding: 16px;
-  }
-
-  .upload-steps {
-    padding: 12px;
-  }
-}
 
 /* —— Theme customizer —— */
 .theme-customizer {
@@ -2014,6 +1965,62 @@ html[data-theme="light"] .home-step-icon {
   font-size: 13px;
 }
 
+/* —— Responsive: iPad + điện thoại —— */
+
+/* iPad / tablet */
+@media (max-width: 1024px) {
+  .app-header {
+    padding: 0 14px;
+    padding-left: max(14px, env(safe-area-inset-left));
+    padding-right: max(14px, env(safe-area-inset-right));
+  }
+
+  .app-header-inner {
+    height: 60px;
+    gap: 6px;
+  }
+
+  .app-content,
+  .app-content-narrow,
+  .app-content-exam {
+    width: min(var(--qp-content), calc(100% - 28px)) !important;
+    margin: 20px auto 48px;
+  }
+
+  .quiz-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-hero {
+    gap: 28px;
+    padding: 40px 20px 56px;
+    min-height: auto;
+  }
+
+  .home-title {
+    font-size: clamp(34px, 5.5vw, 48px);
+  }
+
+  .question-meta {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .question-tags {
+    justify-content: flex-start;
+  }
+
+  .page-hero-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-hero-row .ant-space {
+    width: 100%;
+  }
+}
+
+/* iPad portrait / large phone landscape — stack landing */
 @media (max-width: 900px) {
   .landing-nav {
     display: none;
@@ -2021,27 +2028,307 @@ html[data-theme="light"] .home-step-icon {
 
   .home-hero {
     grid-template-columns: 1fr;
-    min-height: auto;
-    padding-top: 40px;
+    padding-top: 32px;
   }
 
   .home-hero-visual {
     order: -1;
-    min-height: 280px;
+    min-height: 260px;
+  }
+
+  .home-steps {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .landing-header-inner {
+    height: 58px;
+    padding: 0 14px;
+    padding-left: max(14px, env(safe-area-inset-left));
+    padding-right: max(14px, env(safe-area-inset-right));
+  }
+
+  .auth-shell {
+    padding: 20px 16px;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+  }
+
+  .auth-panel {
+    width: min(440px, 100%);
+  }
+
+  .session-actions-bar {
+    bottom: max(10px, env(safe-area-inset-bottom));
+  }
+}
+
+/* Điện thoại */
+@media (max-width: 768px) {
+  .header-nav-pills {
+    display: none;
+  }
+
+  .header-focus-label {
+    font-size: 12px;
+    margin-left: 4px;
+    white-space: nowrap;
+  }
+
+  .brand {
+    margin-right: 4px;
+    gap: 8px;
+    font-size: 14px;
+  }
+
+  .brand-mark {
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
+  }
+
+  .brand-text {
+    max-width: 7.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .header-user-name,
+  .landing-link-quiet {
+    display: none;
+  }
+
+  .header-cta.ant-btn {
+    padding-inline: 12px !important;
+    min-width: 40px;
+  }
+
+  .header-cta-label {
+    /* giữ chữ ngắn trên tablet nhỏ; ẩn hoàn toàn ở phone hẹp hơn */
+  }
+
+  .app-header-inner {
+    height: 56px;
+  }
+
+  .app-content,
+  .app-content-narrow,
+  .app-content-exam {
+    width: calc(100% - 20px) !important;
+    margin: 14px auto 28px;
+  }
+
+  .app-shell.has-mobile-nav .app-content {
+    margin-bottom: 88px;
+  }
+
+  .app-shell.has-mobile-nav .app-footer {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+  }
+
+  .mobile-tabbar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--qp-primary-deep) 94%, transparent);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+  }
+
+  .mobile-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-height: 48px;
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .mobile-tab .anticon {
+    font-size: 18px;
+  }
+
+  .mobile-tab.is-active {
+    color: var(--qp-primary);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .quiz-card-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .page-title {
+    font-size: clamp(24px, 7vw, 32px) !important;
+  }
+
+  .page-desc {
+    font-size: 14px;
+  }
+
+  .surface-card,
+  .question-card {
+    padding: 14px 14px 12px;
+  }
+
+  .question-stem {
+    font-size: 15px;
+    padding: 12px;
+  }
+
+  .choice-item {
+    padding: 12px !important;
+    font-size: 14px;
+  }
+
+  .session-actions-bar {
+    flex-wrap: nowrap;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .session-actions-left .ant-btn {
+    padding-inline: 8px;
+  }
+
+  .session-actions-right .ant-btn-primary {
+    min-height: 44px;
+    padding-inline: 16px !important;
+  }
+
+  .session-actions-right .ant-typography {
+    font-size: 12px;
   }
 
   .home-steps {
     grid-template-columns: 1fr;
   }
+
+  .home-title {
+    font-size: 32px;
+  }
+
+  .home-lead {
+    font-size: 15px;
+  }
+
+  .home-cta-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .home-cta.ant-btn {
+    width: 100%;
+  }
+
+  .home-cta-ghost {
+    justify-content: center;
+  }
+
+  .home-device {
+    width: min(100%, 340px);
+  }
+
+  .home-section {
+    padding: 48px 16px 16px;
+  }
+
+  .upload-steps {
+    padding: 12px;
+  }
+
+  .meta-tile .value {
+    font-size: 18px;
+  }
+
+  .action-split {
+    grid-template-columns: 1fr;
+  }
+
+  .results-score {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .exam-topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .exam-nav {
+    position: static;
+  }
+}
+
+.landing-login-icon {
+  display: none;
+  color: inherit;
 }
 
 @media (max-width: 560px) {
-  .landing-link-quiet {
+  .header-cta-label {
     display: none;
   }
 
-  .home-title {
-    font-size: 36px;
+  .header-cta.ant-btn {
+    width: 40px;
+    padding-inline: 0 !important;
+  }
+
+  .header-cta.ant-btn .ant-btn-icon {
+    margin-inline: 0 !important;
+  }
+
+  .landing-login-icon {
+    display: inline-flex;
+  }
+
+  .auth-brand-name {
+    font-size: clamp(24px, 8vw, 32px) !important;
+    flex-wrap: wrap;
+  }
+
+  .auth-card .ant-card-body {
+    padding: 20px 16px;
+  }
+
+  .center-screen {
+    padding: 16px;
+  }
+
+  .session-actions-bar {
+    flex-direction: row;
+  }
+
+  .session-actions-right .ant-btn-primary {
+    font-size: 13px !important;
+  }
+}
+
+/* iPad landscape giữ 2 cột thư viện */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .quiz-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-hero {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+  }
+
+  .home-hero-visual {
+    order: 0;
+  }
+
+  .home-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
