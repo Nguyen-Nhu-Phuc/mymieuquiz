@@ -9,7 +9,7 @@ import {
   getAdminToken,
   setAdminToken,
 } from "@/api/admin.api";
-import { getErrorMessage } from "@/api/client";
+import { getErrorMessage, getToken } from "@/api/client";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { appMessage as message } from "@/lib/appMessage";
@@ -35,6 +35,11 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
+    // Ưu tiên token admin; nếu chưa có thì dùng JWT app (role=admin) để vào thẳng.
+    if (!getAdminToken()) {
+      const appToken = getToken();
+      if (appToken) setAdminToken(appToken);
+    }
     if (getAdminToken()) {
       void verifySession();
     } else {

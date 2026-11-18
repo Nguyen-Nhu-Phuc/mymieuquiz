@@ -221,6 +221,45 @@ export async function updateAdminSettings(input: {
   return data.data;
 }
 
+export interface StoredGeminiKeyRow {
+  index: number;
+  masked: string;
+  isPrimary: boolean;
+}
+
+export async function listGeminiKeys(): Promise<StoredGeminiKeyRow[]> {
+  const { data } = await adminApi.get<
+    ApiSuccess<{ items: StoredGeminiKeyRow[] }>
+  >("/admin/gemini-keys");
+  return data.data.items;
+}
+
+export async function addGeminiKey(key: string): Promise<StoredGeminiKeyRow[]> {
+  const { data } = await adminApi.post<
+    ApiSuccess<{ items: StoredGeminiKeyRow[] }>
+  >("/admin/gemini-keys", { key });
+  return data.data.items;
+}
+
+export async function updateGeminiKey(
+  index: number,
+  key: string,
+): Promise<StoredGeminiKeyRow[]> {
+  const { data } = await adminApi.put<
+    ApiSuccess<{ items: StoredGeminiKeyRow[] }>
+  >(`/admin/gemini-keys/${index}`, { key });
+  return data.data.items;
+}
+
+export async function deleteGeminiKey(
+  index: number,
+): Promise<StoredGeminiKeyRow[]> {
+  const { data } = await adminApi.delete<
+    ApiSuccess<{ items: StoredGeminiKeyRow[] }>
+  >(`/admin/gemini-keys/${index}`);
+  return data.data.items;
+}
+
 export async function getAdminOverview(): Promise<AdminOverview> {
   const { data } = await adminApi.get<ApiSuccess<AdminOverview>>(
     "/admin/overview",

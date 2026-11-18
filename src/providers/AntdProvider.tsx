@@ -5,12 +5,14 @@ import viVN from "antd/locale/vi_VN";
 import { useEffect, type ReactNode } from "react";
 import { ThemeProvider, useThemeMode } from "@/hooks/useThemeMode";
 import { setMessageApi } from "@/lib/appMessage";
+import { setModalApi } from "@/lib/appModal";
 
-function MessageBridge() {
-  const { message } = App.useApp();
+function AppBridge() {
+  const { message, modal } = App.useApp();
   useEffect(() => {
     setMessageApi(message);
-  }, [message]);
+    setModalApi(modal);
+  }, [message, modal]);
   return null;
 }
 
@@ -19,7 +21,7 @@ function ThemedConfig({ children }: { children: ReactNode }) {
   return (
     <ConfigProvider theme={antdTheme} locale={viVN}>
       <App>
-        <MessageBridge />
+        <AppBridge />
         {children}
       </App>
     </ConfigProvider>

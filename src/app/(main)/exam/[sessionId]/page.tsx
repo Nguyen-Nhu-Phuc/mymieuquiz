@@ -4,7 +4,6 @@ import { FlagFilled, FlagOutlined } from "@ant-design/icons";
 import {
   Button,
   Col,
-  Modal,
   Row,
   Space,
   Spin,
@@ -12,6 +11,7 @@ import {
 } from "antd";
 import { useParams, useRouter } from "next/navigation";
 import { appMessage as message } from "@/lib/appMessage";
+import { appModal } from "@/lib/appModal";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { SessionDetail } from "@/@types/api";
 import { getErrorMessage } from "@/api/client";
@@ -171,12 +171,29 @@ export default function ExamPage() {
     }
   };
 
+  const exitSession = () => {
+    appModal.confirm({
+      title: "Thoát phòng thi?",
+      content:
+        "Thời gian vẫn tiếp tục tính nếu phiên còn hạn. Đáp án đã chọn được lưu — vào lại từ Lịch sử nếu còn in progress.",
+      okText: "Thoát",
+      cancelText: "Ở lại",
+      okButtonProps: { danger: true },
+      onOk: () => router.push("/library"),
+    });
+  };
+
   return (
     <div className="session-focus exam-layout">
       <div className="session-topbar exam-topbar">
-        <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-          Thi thử · Câu {index + 1}/{session.questions.length}
-        </Typography.Text>
+        <div className="session-topbar-row">
+          <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+            Thi thử · Câu {index + 1}/{session.questions.length}
+          </Typography.Text>
+          <Button type="text" danger size="small" onClick={exitSession}>
+            Thoát
+          </Button>
+        </div>
         <ExamTimer remainingSeconds={remaining} />
       </div>
 

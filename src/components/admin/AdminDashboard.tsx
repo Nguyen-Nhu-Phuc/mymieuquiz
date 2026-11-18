@@ -7,6 +7,7 @@ import {
   Form,
   Input,
   InputNumber,
+  Modal,
   Popconfirm,
   Select,
   Space,
@@ -18,10 +19,12 @@ import {
 import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import { useCallback, useEffect, useState } from "react";
 import {
+  addGeminiKey,
   deleteAdminDocument,
   deleteAdminQuiz,
   deleteAdminSession,
   deleteAdminUser,
+  deleteGeminiKey,
   getAdminOverview,
   getAdminSettings,
   getGeminiQuota,
@@ -29,9 +32,11 @@ import {
   listAdminQuizzes,
   listAdminSessions,
   listAdminUsers,
+  listGeminiKeys,
   resetGeminiExhausted,
   setAdminUserRole,
   updateAdminSettings,
+  updateGeminiKey,
   type AdminDocumentRow,
   type AdminOverview,
   type AdminQuizRow,
@@ -39,6 +44,7 @@ import {
   type AdminSettings,
   type AdminUserRow,
   type GeminiQuotaStatus,
+  type StoredGeminiKeyRow,
 } from "@/api/admin.api";
 import { getErrorMessage } from "@/api/client";
 import { appMessage as message } from "@/lib/appMessage";
@@ -779,6 +785,182 @@ function SessionsTab() {
   );
 }
 
+function GeminiKeysManager({ onChanged }: { onChanged?: () => void }) {
+  const [keys, setKeys] = useState<StoredGeminiKeyRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState<StoredGeminiKeyRow | null>(null);
+  const [keyValue, setKeyValue] = useState("");
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      setKeys(await listGeminiKeys());
+    } catch (err) {
+      message.error(getErrorMessage(err, "Không tải danh sách API key"));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const openAdd = () => {
+    setEditing(null);
+    setKeyValue("");
+    setModalOpen(true);
+  };
+
+  const openEdit = (row: StoredGeminiKeyRow) => {
+    setEditing(row);
+    setKeyValue("");
+    setModalOpen(true);
+  };
+
+  const saveKey = async () => {
+    const trimmed = keyValue.trim();
+    if (!trimmed) {
+      message.warning("Nhập API key");
+      return;
+    }
+    setBusy(true);
+    try {
+      const items = editing
+        ? await updateGeminiKey(editing.index, trimmed)
+        : await addGeminiKey(trimmed);
+      setKeys(items);
+      setModalOpen(false);
+      setKeyValue("");
+      setEditing(null);
+      message.success(editing ? "Đã cập nhật API key" : "Đã thêm API key");
+      onChanged?.();
+    } catch (err) {
+      message.error(getErrorMessage(err, "Không lưu được API key"));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const removeKey = async (index: number) => {
+    setBusy(true);
+    try {
+      setKeys(await deleteGeminiKey(index));
+      message.success("Đã xoá API key");
+      onChanged?.();
+    } catch (err) {
+      message.error(getErrorMessage(err, "Không xoá được API key"));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const columns: ColumnsType<StoredGeminiKeyRow> = [
+    {
+      title: "#",
+      dataIndex: "index",
+      width: 56,
+      render: (v: number) => v + 1,
+    },
+    {
+      title: "Key (đã che)",
+      dataIndex: "masked",
+      render: (v: string, row) => (
+        <Space wrap>
+          <Typography.Text code>{v || "(trống)"}</Typography.Text>
+          {row.isPrimary ? <Tag color="blue">Chính</Tag> : <Tag>Phụ</Tag>}
+        </Space>
+      ),
+    },
+    {
+      title: "",
+      key: "actions",
+      width: 160,
+      render: (_, row) => (
+        <Space>
+          <Button size="small" onClick={() => openEdit(row)} disabled={busy}>
+            Sửa
+          </Button>
+          <Popconfirm
+            title="Xoá API key này?"
+            okText="Xoá"
+            cancelText="Huỷ"
+            okButtonProps={{ danger: true }}
+            onConfirm={() => void removeKey(row.index)}
+          >
+            <Button size="small" danger disabled={busy}>
+              Xoá
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
+
+  return (
+    <div style={{ marginBottom: 24 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
+          marginBottom: 12,
+          flexWrap: "wrap",
+        }}
+      >
+        <div>
+          <Typography.Text strong>Gemini API keys</Typography.Text>
+          <Typography.Paragraph type="secondary" style={{ margin: "4px 0 0" }}>
+            Thêm / sửa / xoá key lưu trên DB. Key đầu danh sách là key chính;
+            nếu trống DB sẽ fallback sang biến môi trường.
+          </Typography.Paragraph>
+        </div>
+        <Button type="primary" onClick={openAdd}>
+          Thêm key
+        </Button>
+      </div>
+
+      <Table
+        rowKey={(r) => `${r.index}-${r.masked}`}
+        size="small"
+        loading={loading || busy}
+        pagination={false}
+        columns={columns}
+        dataSource={keys}
+        locale={{ emptyText: "Chưa có key trong DB" }}
+      />
+
+      <Modal
+        title={editing ? `Sửa API key #${editing.index + 1}` : "Thêm API key"}
+        open={modalOpen}
+        onCancel={() => {
+          if (busy) return;
+          setModalOpen(false);
+        }}
+        onOk={() => void saveKey()}
+        okText={editing ? "Cập nhật" : "Thêm"}
+        confirmLoading={busy}
+        destroyOnHidden
+      >
+        {editing ? (
+          <Typography.Paragraph type="secondary">
+            Key hiện tại: <code>{editing.masked}</code> — dán key mới để thay.
+          </Typography.Paragraph>
+        ) : null}
+        <Input.Password
+          value={keyValue}
+          onChange={(e) => setKeyValue(e.target.value)}
+          placeholder="Dán Gemini API key…"
+          autoFocus
+        />
+      </Modal>
+    </div>
+  );
+}
+
 function SettingsTab() {
   const [form] = Form.useForm();
   const [settings, setSettings] = useState<AdminSettings | null>(null);
@@ -793,8 +975,6 @@ function SettingsTab() {
       const data = await getAdminSettings();
       setSettings(data);
       form.setFieldsValue({
-        geminiApiKey: "",
-        geminiApiKeys: "",
         geminiModel: data.geminiModel,
         nOnLuyen: data.nOnLuyen,
         nPhongThi: data.nPhongThi,
@@ -846,6 +1026,8 @@ function SettingsTab() {
         <Alert type="error" showIcon title={error} style={{ marginBottom: 16 }} />
       ) : null}
 
+      <GeminiKeysManager onChanged={() => void load()} />
+
       <Form
         form={form}
         layout="vertical"
@@ -853,22 +1035,14 @@ function SettingsTab() {
           setSaving(true);
           setError(null);
           try {
-            const payload: Parameters<typeof updateAdminSettings>[0] = {
+            const data = await updateAdminSettings({
               geminiModel: values.geminiModel?.trim() || undefined,
               nOnLuyen: Number(values.nOnLuyen),
               nPhongThi: Number(values.nPhongThi),
               thoiGianPhut: Number(values.thoiGianPhut),
               nNganHang: Number(values.nNganHang),
-            };
-            if (values.geminiApiKey?.trim()) {
-              payload.geminiApiKey = values.geminiApiKey.trim();
-            }
-            if (values.geminiApiKeys?.trim()) {
-              payload.geminiApiKeys = values.geminiApiKeys.trim();
-            }
-            const data = await updateAdminSettings(payload);
+            });
             setSettings(data);
-            form.setFieldsValue({ geminiApiKey: "", geminiApiKeys: "" });
             message.success("Đã lưu cấu hình");
           } catch (err) {
             setError(getErrorMessage(err, "Lưu thất bại"));
@@ -877,30 +1051,6 @@ function SettingsTab() {
           }
         }}
       >
-        <Typography.Paragraph type="secondary" style={{ marginTop: 0 }}>
-          Key hiện tại:{" "}
-          <strong>{settings?.geminiApiKeyMasked || "(chưa có)"}</strong>
-          {settings?.geminiApiKeysMasked?.length ? (
-            <> · Phụ: {settings.geminiApiKeysMasked.join(", ")}</>
-          ) : null}
-        </Typography.Paragraph>
-
-        <Form.Item
-          label="Gemini API key chính"
-          name="geminiApiKey"
-          extra="Để trống nếu giữ key hiện tại"
-        >
-          <Input.Password placeholder="Dán key mới để thay…" />
-        </Form.Item>
-
-        <Form.Item
-          label="Gemini API keys dự phòng"
-          name="geminiApiKeys"
-          extra="Cách nhau bởi dấu phẩy. Để trống = giữ danh sách phụ hiện tại."
-        >
-          <Input.TextArea rows={2} placeholder="key2, key3…" />
-        </Form.Item>
-
         <Form.Item
           label="Gemini model"
           name="geminiModel"

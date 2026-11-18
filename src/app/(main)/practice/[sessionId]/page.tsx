@@ -17,6 +17,7 @@ import {
 import { ProgressBar } from "@/components/quiz/ProgressBar";
 import { QuestionCard } from "@/components/quiz/QuestionCard";
 import { appMessage as message } from "@/lib/appMessage";
+import { appModal } from "@/lib/appModal";
 
 export default function PracticePage() {
   const params = useParams<{ sessionId: string }>();
@@ -156,12 +157,28 @@ export default function PracticePage() {
     }
   };
 
+  const exitSession = () => {
+    appModal.confirm({
+      title: "Thoát ôn luyện?",
+      content: "Câu đã trả lời được lưu. Bạn có thể xem lại trong Lịch sử.",
+      okText: "Thoát",
+      cancelText: "Ở lại",
+      okButtonProps: { danger: true },
+      onOk: () => router.push("/library"),
+    });
+  };
+
   return (
     <div className="session-focus practice-session">
-      <div className="session-topbar">
-        <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-          Ôn luyện · Câu {index + 1}/{total}
-        </Typography.Text>
+      <div className="session-topbar practice-topbar">
+        <div className="session-topbar-row">
+          <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+            Ôn luyện · Câu {index + 1}/{total}
+          </Typography.Text>
+          <Button type="text" danger size="small" onClick={exitSession}>
+            Thoát
+          </Button>
+        </div>
         <div style={{ marginTop: 8 }}>
           <ProgressBar current={index + (locked ? 1 : 0)} total={total} />
         </div>
