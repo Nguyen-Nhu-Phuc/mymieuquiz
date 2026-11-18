@@ -233,7 +233,7 @@ export default function ExamPage() {
               onClick={() => {
                 const unanswered = session.questions.length - answeredIndexes.size;
                 const flagCount = flagged.size;
-                Modal.confirm({
+                appModal.confirm({
                   title: "Nộp bài?",
                   content: (
                     <div>
