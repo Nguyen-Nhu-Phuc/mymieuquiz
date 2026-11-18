@@ -5,10 +5,13 @@ export type SessionKind = "practice" | "exam";
 export type SessionStatus = "in_progress" | "submitted" | "expired";
 export type DocumentStatus = "uploaded" | "processing" | "ready" | "failed";
 
+export type UserRole = "user" | "admin";
+
 export interface User {
   id: string;
   email: string;
   name: string;
+  role?: UserRole;
   createdAt?: string;
 }
 

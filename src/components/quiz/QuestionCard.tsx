@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, Card, Radio, Space, Tag, Typography } from "antd";
+import { Radio, Space, Tag, Typography } from "antd";
 import type { PublicQuestion } from "@/@types/api";
 import { choiceLabel } from "@/utils/format";
 
@@ -23,21 +23,29 @@ export function QuestionCard({
   showFeedback,
   onSelect,
 }: Props) {
-  const reveal = Boolean(showFeedback && selectedIndex != null && question.correctIndex != null);
+  const reveal = Boolean(
+    showFeedback && selectedIndex != null && question.correctIndex != null,
+  );
+  const isCorrect = selectedIndex === question.correctIndex;
 
   return (
-    <Card className="question-card">
+    <div className="question-card">
       <div className="question-meta">
         <Typography.Text type="secondary">
           Câu {index + 1}/{total}
         </Typography.Text>
-        <span style={{ display: "inline-flex", gap: 6, flexWrap: "wrap" }}>
-          {question.type === "lam_sang" ? (
+        <span className="question-tags">
+          {question.type === "tinh_huong" ? (
+            <Tag color="purple">Tình huống</Tag>
+          ) : question.type === "lam_sang" ? (
             <Tag color="gold">Lâm sàng</Tag>
-          ) : null}
+          ) : (
+            <Tag color="blue">Lý thuyết</Tag>
+          )}
           {question.topic ? <Tag color="cyan">{question.topic}</Tag> : null}
         </span>
       </div>
+
       <p className="question-stem">
         {question.stem?.trim() ? (
           question.stem
@@ -54,7 +62,7 @@ export function QuestionCard({
         disabled={locked}
         style={{ width: "100%" }}
       >
-        <Space orientation="vertical" style={{ width: "100%" }} size={10}>
+        <Space orientation="vertical" style={{ width: "100%" }} size={8}>
           {question.choices.map((choice, i) => {
             let className = "choice-item";
             if (reveal) {
@@ -70,17 +78,18 @@ export function QuestionCard({
         </Space>
       </Radio.Group>
 
-      {reveal && question.explanation ? (
-        <Alert
-          style={{ marginTop: 16 }}
-          type={selectedIndex === question.correctIndex ? "success" : "error"}
-          showIcon
-          title={
-            selectedIndex === question.correctIndex ? "Chính xác" : "Chưa đúng"
-          }
-          description={question.explanation}
-        />
+      {reveal ? (
+        <div
+          className={`answer-feedback ${isCorrect ? "is-correct" : "is-wrong"}`}
+        >
+          <div className="answer-feedback-title">
+            {isCorrect ? "Chính xác" : "Chưa đúng"}
+          </div>
+          {question.explanation ? (
+            <p className="answer-feedback-body">{question.explanation}</p>
+          ) : null}
+        </div>
       ) : null}
-    </Card>
+    </div>
   );
 }

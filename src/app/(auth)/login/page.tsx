@@ -5,17 +5,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getErrorMessage } from "@/api/client";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { useAuth } from "@/hooks/useAuth";
 import { AuthLayout } from "@/templates/AuthLayout";
 
 export default function LoginPage() {
-  const { login, user, loading } = useAuth();
+  const { login, loginWithGoogle, user, loading } = useAuth();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!loading && user) router.replace("/");
+    if (!loading && user) router.replace("/library");
   }, [loading, user, router]);
 
   return (
@@ -23,6 +24,16 @@ export default function LoginPage() {
       {error ? (
         <Alert type="error" showIcon title={error} style={{ marginBottom: 16 }} />
       ) : null}
+
+      <GoogleSignInButton
+        disabled={submitting}
+        onAccessToken={async (accessToken) => {
+          setError(null);
+          await loginWithGoogle({ accessToken });
+          router.replace("/library");
+        }}
+      />
+
       <Form
         layout="vertical"
         onFinish={async (values) => {
@@ -30,7 +41,7 @@ export default function LoginPage() {
           setError(null);
           try {
             await login(values.email, values.password);
-            router.replace("/");
+            router.replace("/library");
           } catch (err) {
             setError(getErrorMessage(err, "Đăng nhập thất bại"));
           } finally {

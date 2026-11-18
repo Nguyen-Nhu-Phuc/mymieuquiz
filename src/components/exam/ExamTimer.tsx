@@ -12,7 +12,7 @@ export function ExamTimer({ remainingSeconds }: { remainingSeconds: number }) {
         value={formatDuration(remainingSeconds)}
         styles={{
           content: {
-            color: danger ? "#C23B3B" : "#0F6B5C",
+            color: danger ? "#ef4444" : "var(--qp-primary)",
             fontVariantNumeric: "tabular-nums",
           },
         }}

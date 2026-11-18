@@ -32,12 +32,11 @@ export default function HistoryPage() {
   return (
     <div>
       <div className="page-hero">
-        <span className="page-kicker">Theo dõi</span>
         <Typography.Title level={2} className="page-title">
-          Lịch sử phiên
+          Lịch sử
         </Typography.Title>
         <Typography.Paragraph className="page-desc">
-          Điểm, thời gian và trạng thái các lần ôn luyện / phòng thi
+          Các lần ôn luyện và thi thử gần đây
         </Typography.Paragraph>
       </div>
 
@@ -57,7 +56,7 @@ export default function HistoryPage() {
                 description="Chưa có phiên ôn luyện hoặc phòng thi"
                 style={{ padding: "40px 0" }}
               >
-                <Link href="/">
+                <Link href="/library">
                   <Button type="primary">Về bộ câu hỏi</Button>
                 </Link>
               </Empty>

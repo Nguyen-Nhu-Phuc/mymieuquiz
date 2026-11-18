@@ -5,24 +5,38 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getErrorMessage } from "@/api/client";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { useAuth } from "@/hooks/useAuth";
 import { AuthLayout } from "@/templates/AuthLayout";
 
 export default function RegisterPage() {
-  const { register, user, loading } = useAuth();
+  const { register, loginWithGoogle, user, loading } = useAuth();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!loading && user) router.replace("/");
+    if (!loading && user) router.replace("/library");
   }, [loading, user, router]);
 
   return (
-    <AuthLayout title="Đăng ký" subtitle="Tạo tài khoản để lưu bộ câu hỏi và lịch sử ôn luyện">
+    <AuthLayout
+      title="Đăng ký"
+      subtitle="Tạo tài khoản để lưu bộ câu hỏi và lịch sử ôn luyện"
+    >
       {error ? (
         <Alert type="error" showIcon title={error} style={{ marginBottom: 16 }} />
       ) : null}
+
+      <GoogleSignInButton
+        disabled={submitting}
+        onAccessToken={async (accessToken) => {
+          setError(null);
+          await loginWithGoogle({ accessToken });
+          router.replace("/library");
+        }}
+      />
+
       <Form
         layout="vertical"
         onFinish={async (values) => {
@@ -30,7 +44,7 @@ export default function RegisterPage() {
           setError(null);
           try {
             await register(values.name, values.email, values.password);
-            router.replace("/");
+            router.replace("/library");
           } catch (err) {
             setError(getErrorMessage(err, "Đăng ký thất bại"));
           } finally {

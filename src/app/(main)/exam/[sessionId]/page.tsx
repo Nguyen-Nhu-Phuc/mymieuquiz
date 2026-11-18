@@ -172,26 +172,16 @@ export default function ExamPage() {
   };
 
   return (
-    <div>
-      <Row gutter={[16, 16]} style={{ marginBottom: 16 }} align="middle">
-        <Col xs={24} md={16}>
-          <div className="page-hero" style={{ marginBottom: 0 }}>
-            <span className="page-kicker">Kiểm tra</span>
-            <Typography.Title level={3} className="page-title" style={{ fontSize: 22 }}>
-              Phòng thi
-            </Typography.Title>
-            <Typography.Paragraph className="page-desc">
-              Không hiện đúng/sai khi đang làm · Có thể quay lại câu · Hết giờ tự nộp
-            </Typography.Paragraph>
-          </div>
-        </Col>
-        <Col xs={24} md={8}>
-          <ExamTimer remainingSeconds={remaining} />
-        </Col>
-      </Row>
+    <div className="session-focus exam-layout">
+      <div className="session-topbar exam-topbar">
+        <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+          Thi thử · Câu {index + 1}/{session.questions.length}
+        </Typography.Text>
+        <ExamTimer remainingSeconds={remaining} />
+      </div>
 
-      <Row gutter={[16, 16]}>
-        <Col xs={24} md={16}>
+      <Row gutter={[20, 16]}>
+        <Col xs={24} lg={16}>
           <QuestionCard
             index={index}
             total={session.questions.length}
@@ -200,23 +190,25 @@ export default function ExamPage() {
             showFeedback={false}
             onSelect={(i) => void saveAnswer(i)}
           />
-          <Space style={{ marginTop: 16 }} wrap>
-            <Button disabled={index === 0} onClick={() => setIndex((i) => i - 1)}>
-              Câu trước
-            </Button>
-            <Button
-              disabled={index >= session.questions.length - 1}
-              onClick={() => setIndex((i) => i + 1)}
-            >
-              Câu sau
-            </Button>
-            <Button
-              className={isCurrentFlagged ? "exam-flag-btn is-active" : "exam-flag-btn"}
-              icon={isCurrentFlagged ? <FlagFilled /> : <FlagOutlined />}
-              onClick={() => toggleFlag(index)}
-            >
-              {isCurrentFlagged ? "Bỏ cờ" : "Đặt cờ"}
-            </Button>
+          <div className="session-actions">
+            <Space wrap>
+              <Button disabled={index === 0} onClick={() => setIndex((i) => i - 1)}>
+                ← Trước
+              </Button>
+              <Button
+                disabled={index >= session.questions.length - 1}
+                onClick={() => setIndex((i) => i + 1)}
+              >
+                Sau →
+              </Button>
+              <Button
+                className={isCurrentFlagged ? "exam-flag-btn is-active" : "exam-flag-btn"}
+                icon={isCurrentFlagged ? <FlagFilled /> : <FlagOutlined />}
+                onClick={() => toggleFlag(index)}
+              >
+                {isCurrentFlagged ? "Bỏ cờ" : "Cờ"}
+              </Button>
+            </Space>
             <Button
               type="primary"
               danger
@@ -230,26 +222,26 @@ export default function ExamPage() {
                     <div>
                       <p style={{ marginBottom: 8 }}>
                         Đã trả lời {answeredIndexes.size}/{session.questions.length} câu
-                        {unanswered > 0 ? ` · còn ${unanswered} câu chưa chọn` : ""}.
+                        {unanswered > 0 ? ` · còn ${unanswered} chưa chọn` : ""}.
                       </p>
                       {flagCount > 0 ? (
                         <p style={{ marginBottom: 0, color: "#b87500" }}>
-                          Còn {flagCount} câu đang đặt cờ — bạn có muốn xem lại trước khi nộp?
+                          Còn {flagCount} câu đang đặt cờ.
                         </p>
                       ) : null}
                     </div>
                   ),
                   okText: "Nộp bài",
-                  cancelText: "Tiếp tục làm",
+                  cancelText: "Làm tiếp",
                   onOk: () => doSubmit(),
                 });
               }}
             >
               Nộp bài
             </Button>
-          </Space>
+          </div>
         </Col>
-        <Col xs={24} md={8}>
+        <Col xs={24} lg={8}>
           <ExamNav
             total={session.questions.length}
             current={index}

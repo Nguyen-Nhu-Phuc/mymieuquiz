@@ -14,7 +14,7 @@ export function ProgressBar({
     <Progress
       percent={percent}
       format={() => `${current}/${total}`}
-      strokeColor="#0F6B5C"
+      strokeColor="var(--qp-primary)"
     />
   );
 }

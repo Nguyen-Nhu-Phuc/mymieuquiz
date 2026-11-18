@@ -163,7 +163,7 @@ export default function ResultsPage() {
         <Link href={`/quizzes/${session.quizSetId}`}>
           <Button>Về bộ câu hỏi</Button>
         </Link>
-        <Link href="/">
+        <Link href="/library">
           <Button type="link">Thư viện</Button>
         </Link>
       </Space>

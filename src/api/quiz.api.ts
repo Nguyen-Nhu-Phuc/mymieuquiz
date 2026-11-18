@@ -11,6 +11,10 @@ export async function generateQuiz(input: {
   thoiGianPhut?: number;
   /** Số câu unique muốn có trong ngân hàng. */
   nNganHang?: number;
+  /** Trộn câu hỏi tình huống kiểu NotebookLM. */
+  includeSituational?: boolean;
+  difficulty?: "de" | "trung_binh" | "kho";
+  topicHint?: string;
 }): Promise<QuizSummary> {
   const documentIds =
     input.documentIds?.filter(Boolean) ??
@@ -24,6 +28,9 @@ export async function generateQuiz(input: {
     nPhongThi: input.nPhongThi,
     thoiGianPhut: input.thoiGianPhut,
     nNganHang: input.nNganHang,
+    includeSituational: input.includeSituational !== false,
+    difficulty: input.difficulty ?? "trung_binh",
+    topicHint: input.topicHint?.trim() || undefined,
   };
 
   const { data } = await api.post<ApiSuccess<QuizSummary>>(

@@ -40,8 +40,14 @@ api.interceptors.response.use(
   (err: AxiosError<ApiErrorBody>) => {
     if (err.response?.status === 401 && typeof window !== "undefined") {
       const path = window.location.pathname;
-      const onAuthPage = path.startsWith("/login") || path.startsWith("/register");
-      setToken(null);
+      const onAuthPage =
+        path.startsWith("/login") ||
+        path.startsWith("/register") ||
+        path.startsWith("/admin");
+      // Không đụng token user khi đang ở /admin (admin dùng token riêng)
+      if (!path.startsWith("/admin")) {
+        setToken(null);
+      }
       if (!onAuthPage) {
         window.location.href = "/login";
       }

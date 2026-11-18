@@ -1,4 +1,4 @@
-# QuizPractice Frontend
+# Mỹ Miều Quiz — Frontend
 
 Next.js (App Router) + TypeScript + Ant Design.
 

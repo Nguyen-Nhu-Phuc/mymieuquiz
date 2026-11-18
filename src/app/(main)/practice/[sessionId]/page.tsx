@@ -1,9 +1,8 @@
 "use client";
 
-import { Button, Space, Spin, Typography } from "antd";
+import { Button, Spin, Typography } from "antd";
 import { useParams, useRouter } from "next/navigation";
-import { appMessage as message } from "@/lib/appMessage";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   isPracticeAnswerResult,
   type PublicQuestion,
@@ -17,10 +16,12 @@ import {
 } from "@/api/session.api";
 import { ProgressBar } from "@/components/quiz/ProgressBar";
 import { QuestionCard } from "@/components/quiz/QuestionCard";
+import { appMessage as message } from "@/lib/appMessage";
 
 export default function PracticePage() {
   const params = useParams<{ sessionId: string }>();
   const router = useRouter();
+  const actionsRef = useRef<HTMLDivElement>(null);
   const [session, setSession] = useState<SessionDetail | null>(null);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -73,6 +74,15 @@ export default function PracticePage() {
     }
   }, [question, answeredMap]);
 
+  // Sau khi có đáp án → giữ nút "Câu tiếp" trong tầm nhìn, không bắt kéo hết giải thích
+  useEffect(() => {
+    if (!feedback) return;
+    const id = window.setTimeout(() => {
+      actionsRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, 50);
+    return () => window.clearTimeout(id);
+  }, [feedback, index]);
+
   const applyAnswer = useCallback(
     async (selectedIndex: number) => {
       if (!session || !question || answering || feedback) return;
@@ -124,7 +134,7 @@ export default function PracticePage() {
   if (loading || !session || !question) {
     return (
       <div className="center-screen">
-        <Spin size="large" description="Đang tải phiên ôn luyện…" />
+        <Spin size="large" description="Đang tải…" />
       </div>
     );
   }
@@ -135,6 +145,7 @@ export default function PracticePage() {
   const goNext = async () => {
     if (index + 1 < total) {
       setIndex((i) => i + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
     try {
@@ -146,16 +157,14 @@ export default function PracticePage() {
   };
 
   return (
-    <div>
-      <div className="page-hero" style={{ marginBottom: 16 }}>
-        <span className="page-kicker">Phiên học</span>
-        <Typography.Title level={3} className="page-title" style={{ fontSize: 22 }}>
-          Ôn luyện
-        </Typography.Title>
-        <Typography.Paragraph className="page-desc" style={{ marginBottom: 12 }}>
-          Chọn đáp án để xem ngay đúng/sai và giải thích
-        </Typography.Paragraph>
-        <ProgressBar current={session.answers.length} total={total} />
+    <div className="session-focus practice-session">
+      <div className="session-topbar">
+        <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+          Ôn luyện · Câu {index + 1}/{total}
+        </Typography.Text>
+        <div style={{ marginTop: 8 }}>
+          <ProgressBar current={index + (locked ? 1 : 0)} total={total} />
+        </div>
       </div>
 
       <QuestionCard
@@ -174,20 +183,34 @@ export default function PracticePage() {
         }}
       />
 
-      <Space style={{ marginTop: 16 }}>
-        {locked ? (
-          <Button type="primary" onClick={() => void goNext()}>
-            {index + 1 < total ? "Câu tiếp theo" : "Xem tổng kết"}
+      <div
+        ref={actionsRef}
+        className={`session-actions-bar${locked ? " is-ready" : ""}`}
+      >
+        <div className="session-actions-left">
+          <Button
+            type="text"
+            disabled={index === 0}
+            onClick={() => {
+              setIndex((i) => i - 1);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          >
+            ← Trước
           </Button>
-        ) : (
-          <Typography.Text type="secondary">
-            {answering ? "Đang chấm…" : "Hãy chọn một đáp án A–D"}
-          </Typography.Text>
-        )}
-        <Button disabled={index === 0} onClick={() => setIndex((i) => i - 1)}>
-          Quay lại
-        </Button>
-      </Space>
+        </div>
+        <div className="session-actions-right">
+          {locked ? (
+            <Button type="primary" size="large" onClick={() => void goNext()}>
+              {index + 1 < total ? "Câu tiếp →" : "Xem kết quả"}
+            </Button>
+          ) : (
+            <Typography.Text type="secondary">
+              {answering ? "Đang chấm…" : "Chọn A–D để trả lời"}
+            </Typography.Text>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
